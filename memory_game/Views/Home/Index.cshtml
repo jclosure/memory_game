@@ -1,0 +1,146 @@
+﻿<div id="body">
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>Memory</h1>
+                <h2>Example application to provide example of the game of memory</h2>
+            </hgroup>
+            <p>
+                Game Demo
+            </p>
+        </div>
+    </section>
+
+    <style>
+        #grid {
+            width: 400px;
+            height: 300px;
+            outline: 2px solid red;
+        }
+
+        .cell {
+            outline: 1px solid red;
+            float: left;
+            height: 100px;
+            width: 100px;
+            text-align: center;
+        }
+        .frozen {
+            background-color: #999
+        }
+    </style>
+
+    <section class="content-wrapper main-content clear-fix">
+
+
+
+        <h3>Flip one card at a time:</h3>
+        <br />
+        <div id="grid" data-bind="foreach: cards">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+    </section>
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    //images: http://www.jfitz.com/cards/
+
+    placeholder = $("<img class='placeholder' src='/Images/classic-cards/b1fv.png' />");
+
+    $(function () {
+
+        var cards = [];
+        var selectedCardIds = [];
+
+        var cells = $(".cell");
+
+        (function () {
+            var cardIds = [];
+            for (var i = 0; i < cells.size() / 2; i++) {
+                var id = randomCardNumber(cardIds);
+                cardIds.push(id);
+                var card = "<img data-id='" + id + "' class='card' src='/Images/classic-cards/" + id + ".png' />";
+                cards.push(card);
+            }
+        })();
+
+        cards = $.merge(cards, cards);
+        cards = shuffleArray(cards);
+
+        cells.each(function (i, cell) {
+            var cell = $(cell);
+            var card = $(cards[i]);
+            cell.data("card", card);
+            cell.data("placeholder", placeholder.clone());
+            //default to placeholders
+            cell.append(placeholder.clone());
+        });
+
+        var pick = function (evt) {
+            var cell = $(this).off();
+            var cells = cell.siblings().andSelf().not(".frozen");
+            var card = cell.data("card");
+            var id = card.data("id");
+            cell.empty().append(card);
+            selectedCardIds.push(id);
+            if (selectedCardIds.length == 2) {
+                if (selectedCardIds[0] == selectedCardIds[1]) {
+                    cells.find('[data-id="' + id + '"]').parent().addClass('frozen').off();
+                }
+                else {
+                    cells.off();
+                    setTimeout(function () {
+                        cells.each(function (id, cell) {
+                            cell = $(cell);
+                            cell.empty().append(cell.data("placeholder"));
+                            cell.click(pick);
+                        });
+                    }, 1500);
+                }
+                selectedCardIds = [];
+            }
+        };
+
+        cells.click(pick);
+
+    });
+
+   
+
+    function randomCardNumber(array) {
+        var value = Math.ceil((Math.random() * 54));
+        var hit = false;
+        for (var i = 0; i < array.length; i++)
+            if (array[i] == value)
+                value = randomCardNumber(array);
+        return value;
+    }
+
+    function shuffleArray(array) {
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
+    }
+
+
+</script>
+
